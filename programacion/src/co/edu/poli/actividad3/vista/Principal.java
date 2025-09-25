@@ -1,86 +1,92 @@
 package co.edu.poli.actividad3.vista;
 
 import co.edu.poli.actividad3.model.*;
-import co.edu.poli.actividad4.servicios.TourMuseo;
-import java.util.ArrayList;
+import co.edu.poli.actividad4.servicios.*;
 
+/**
+ * Clase Principal que prueba el funcionamiento de las operaciones CRUD
+ * sobre actividades turísticas, utilizando la implementación de
+ * {@link OperacionCRUD}.
+ * 
+ * Se crean objetos de ejemplo y se realizan las operaciones:
+ * Create, Read, Update, Delete y FindAll.
+ * 
+ * @author Julian David Rodriguez Ramirez 
+ * @version 1.0
+ */
 public class Principal {
 
-   
-    public static void mostrarActividad(ActividadTuristica actividad) {
-        System.out.println(">>> Información de la actividad recibida:");
-        System.out.println(actividad.mostrarInformacion());
-        System.out.println("--------------------------------");
-    }
-
-    
-    public static ActividadTuristica crearActividadDemo() {
-        Lugar lugar = new Lugar("Parque Nacional", "Colombia", "Templado");
-        Experiencia exp = new Experiencia("Caminata ecológica", 60, "Media");
-        Calificacion cal = new Calificacion("Muy buena", 4.5, "Laura Gómez", "Excelente guía");
-        Descripcion desc = new Descripcion("Senderismo", "Conectar con la naturaleza", "Llevar ropa cómoda");
-
-       
-        return new ActividadAventura("A004", "Senderismo", "Aventura", lugar, 120, exp, cal, desc, 2020, "Medio");
-    }
-
+    /**
+     * Método principal que ejecuta las pruebas del CRUD.
+     * 
+     * @param args Argumentos de línea de comandos (no utilizados).
+     */
     public static void main(String[] args) {
 
-       
-        System.out.println("=== PUNTO 1: Arreglo polimórfico ===");
+        // Crear servicio CRUD
+        OperacionCRUD crud = new ImplementacionOperacionCRUD();
 
-        Lugar lugar1 = new Lugar("L001", "Cartagena", "Cálido");
-        Experiencia exp1 = new Experiencia("Guía turística", 120, "Baja");
-        Calificacion cal1 = new Calificacion("Excelente", 4.8, "Juan Pérez", "Muy buena experiencia");
-        Descripcion desc1 = new Descripcion("Recorrido cultural", "Conocer historia", "Llevar agua");
+        // Crear objetos de apoyo para ActividadTuristica
+        Lugar lugar1 = new Lugar("Museo del Oro", "Colombia", "Templado");
+        Experiencia exp1 = new Experiencia("Recorrido guiado", 120, "Baja");
+        Calificacion cal1 = new Calificacion("Excelente", 4.8, "Ana", "Muy recomendado");
+        Descripcion desc1 = new Descripcion("Cultural", "Conocer historia precolombina", "Llevar cámara");
 
-        ActividadCultural actCultural = new ActividadCultural("A001", "Tour Histórico", "Cultural",
-                lugar1, 180, exp1, cal1, desc1, 1995, "Español");
+        Lugar lugar2 = new Lugar("Parque Aventura", "Colombia", "Cálido");
+        Experiencia exp2 = new Experiencia("Escalada", 90, "Alta");
+        Calificacion cal2 = new Calificacion("Adrenalina pura", 4.5, "Pedro", "Emocionante experiencia");
+        Descripcion desc2 = new Descripcion("Aventura", "Vivir emociones extremas", "Usar ropa deportiva");
 
-        ActividadAventura actAventura = new ActividadAventura("A002", "Rafting", "Aventura",
-                lugar1, 240, exp1, cal1, desc1, 2005, "Alto");
+        // ==== CREATE ====
+        ActividadTuristica act1 = new TourMuseo("A1", "Tour Museo del Oro", "Cultural", 
+                lugar1, 120, exp1, cal1, desc1, 1939, "Español", 60);
 
-        TourMuseo tourMuseo = new TourMuseo("A003", "Visita Museo", "Cultural",
-                lugar1, 90, exp1, cal1, desc1, 2010, "Español", 60);
+        ActividadTuristica act2 = new ActividadAventura("A2", "Escalada en roca", "Aventura", 
+                lugar2, 90, exp2, cal2, desc2, 2005, "Alto");
 
-      
-        ActividadTuristica[] arregloActividades = new ActividadTuristica[5];
-        arregloActividades[0] = actCultural;
-        arregloActividades[1] = actAventura;
-        arregloActividades[2] = tourMuseo;
+        crud.create(act1);
+        crud.create(act2);
 
-        
-        for (int i = 0; i < arregloActividades.length; i++) {
-            System.out.println("Posición " + i + ":");
-            if (arregloActividades[i] != null) {
-                System.out.println(arregloActividades[i].mostrarInformacion());
-            } else {
-                System.out.println("null");
+        System.out.println("==== CREATE ====");
+        for (ActividadTuristica a : crud.findAll()) {
+            if (a != null) {
+                System.out.println(a.mostrarInformacion());
             }
-            System.out.println("--------------------------------");
         }
 
-       
-        System.out.println("\n=== PUNTO 2: Métodos con polimorfismo ===");
+        // ==== READ ====
+        System.out.println("\n==== READ ====");
+        ActividadTuristica encontrada = crud.read("A1");
+        if (encontrada != null) {
+            System.out.println("Encontrada: " + encontrada.mostrarInformacion());
+        }
 
-        
-        ActividadTuristica actPoli = crearActividadDemo();
+        // ==== UPDATE ====
+        System.out.println("\n==== UPDATE ====");
+        ActividadTuristica act2Actualizada = new ActividadAventura("A2", "Escalada extrema", "Aventura", 
+                lugar2, 100, exp2, cal2, desc2, 2005, "Muy Alto");
+        if (crud.update(act2Actualizada)) {
+            System.out.println("Actividad actualizada correctamente.");
+        }
 
-        
-        mostrarActividad(actPoli);
+        // Mostrar después del UPDATE
+        for (ActividadTuristica a : crud.findAll()) {
+            if (a != null) {
+                System.out.println(a.mostrarInformacion());
+            }
+        }
 
-       
-        System.out.println("\n=== PUNTO 3: Uso de final ===");
+        // ==== DELETE ====
+        System.out.println("\n==== DELETE ====");
+        if (crud.delete("A1")) {
+            System.out.println("Actividad A1 eliminada correctamente.");
+        }
 
-        // -------- Cambios realizados --------
-        // 1. En la clase Lugar → atributo final (nombre)
-        // 2. En la clase Lugar → método final (getNombre)
-        // 3. En la clase Lugar → clase final (no se puede heredar)
-        // -------------------------------------
-
-        Lugar lugarFinal = new Lugar("Museo del Oro", "Colombia", "Templado");
-        System.out.println("Nombre (atributo final): " + lugarFinal.getNombre());
-        System.out.println("País: " + lugarFinal.getPais());
-        System.out.println("Clima: " + lugarFinal.getClima());
+        // Mostrar después del DELETE
+        for (ActividadTuristica a : crud.findAll()) {
+            if (a != null) {
+                System.out.println(a.mostrarInformacion());
+            }
+        }
     }
 }
